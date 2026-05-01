@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Savak — GIS Dashboard</title>
+
+  <!-- Leaflet core -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Leaflet Draw (boundary drawing tools) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+  <!--
+    ═══════════════════════════════════════════════════════════════
+    KML UPLOAD — Remove these two lines to disable KML upload entirely
+    ═══════════════════════════════════════════════════════════════
+  -->
+  <script src="https://unpkg.com/leaflet-omnivore@0.3.4/leaflet-omnivore.min.js"></script>
+  <script src="kml.js" defer></script>
+  <!-- ══════════════════════════════════════════════════════════ -->
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── Collapsible GIS sidebar ── -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-header">
+      <span class="sidebar-title">Map Controls</span>
+      <button class="icon-btn" id="collapse-btn" onclick="GIS.toggleSidebar()" title="Collapse panel">
+        <!-- chevron-left icon -->
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 3L5 8l5 5"/></svg>
+      </button>
+    </div>
+
+    <!-- Basemap -->
+    <div class="sidebar-section">
+      <div class="section-header" data-target="basemap-body">
+        <span class="section-label">Basemap</span>
+        <svg class="chevron open" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4l4 4 4-4"/></svg>
+      </div>
+      <div class="section-body" id="basemap-body">
+        <div class="basemap-toggle">
+          <button class="basemap-btn active" data-basemap="satellite" onclick="GIS.setBasemap('satellite')">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="5.5"/><ellipse cx="7" cy="7" rx="2.5" ry="5.5"/><line x1="1.5" y1="7" x2="12.5" y2="7"/></svg>
+            Satellite
+          </button>
+          <button class="basemap-btn" data-basemap="street" onclick="GIS.setBasemap('street')">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11h10M2 8h10M2 5h10M4 2h6"/></svg>
+            Street
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawing tools -->
+    <div class="sidebar-section">
+      <div class="section-header" data-target="draw-body">
+        <span class="section-label">Draw Boundary</span>
+        <svg class="chevron open" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4l4 4 4-4"/></svg>
+      </div>
+      <div class="section-body" id="draw-body">
+        <div class="draw-tools">
+          <button class="draw-btn" id="draw-polygon-btn" onclick="GIS.startDraw('polygon')" title="Draw polygon">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="8,2 14,6 12,13 4,13 2,6"/></svg>
+            Polygon
+          </button>
+          <button class="draw-btn" id="draw-rect-btn" onclick="GIS.startDraw('rectangle')" title="Draw rectangle">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="8" rx="1"/></svg>
+            Rectangle
+          </button>
+          <button class="draw-btn" id="draw-edit-btn" onclick="GIS.startEdit()" title="Edit shapes">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2l3 3-8 8H3v-3l8-8z"/></svg>
+            Edit
+          </button>
+          <button class="draw-btn danger" onclick="GIS.clearDrawings()" title="Clear all drawings">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h10l-1 7H4L3 6zM1 4h14M6 4V2h4v2"/></svg>
+            Clear
+          </button>
+        </div>
+        <p class="hint">Click a tool, then draw on the map. Press <kbd>Esc</kbd> or finish to confirm.</p>
+      </div>
+    </div>
+
+    <!--
+      ═══════════════════════════════════════════════════════════════
+      KML SECTION — This block is populated by js/kml.js at runtime.
+      Remove the script tag in <head> and this comment to disable.
+      ═══════════════════════════════════════════════════════════════
+    -->
+    <div id="kml-section-mount"></div>
+    <!-- ══════════════════════════════════════════════════════════ -->
+
+    <!-- GeoServer WMS layers — built from GIS.CONFIG.LAYER_GROUPS in sidebar.js -->
+    <div id="layer-groups-container"></div>
+
+  </aside>
+
+  <!-- Sidebar toggle tab (visible when sidebar is collapsed) -->
+  <button class="sidebar-tab" id="sidebar-tab" onclick="GIS.toggleSidebar()" title="Expand panel">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3l5 5-5 5"/></svg>
+  </button>
+
+  <!-- ── Map ── -->
+  <div id="map"></div>
+
+  <!-- Basemap overlay (top-right of map) -->
+  <div class="basemap-overlay">
+    <button class="basemap-overlay-btn active" data-basemap="satellite" onclick="GIS.setBasemap('satellite')">Satellite</button>
+    <button class="basemap-overlay-btn" data-basemap="street" onclick="GIS.setBasemap('street')">Street</button>
+  </div>
+
+</div><!-- /app -->
+
+<!--
+  Load order matters — config first, then map, then features that depend on GIS.map.
+  sidebar.js reads GIS.CONFIG and runs on DOMContentLoaded, so it can come before map.js
+  as long as it only touches the DOM after load. In practice keep this order.
+-->
+<script src="config.js"></script>
+<script src="map.js"></script>
+<script src="layers.js"></script>
+<script src="draw.js"></script>
+<script src="sidebar.js"></script>
+
+<script>
+  // Initialise default layers after everything is ready
+  document.addEventListener('DOMContentLoaded', function () {
+    GIS.initDefaultLayers();
+  });
+</script>
+
+</body>
+</html>

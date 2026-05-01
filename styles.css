@@ -1,0 +1,485 @@
+/*
+ * styles.css
+ * Savak GIS Dashboard — all visual styles.
+ * Uses CSS custom properties so the other developer can easily retheme.
+ */
+
+/* ── Design tokens ────────────────────────────────────────────────────── */
+:root {
+  --green-900: #0D3320;
+  --green-800: #1A5C38;
+  --green-700: #2D8A59;
+  --green-600: #38A96C;
+  --green-500: #5EC28A;
+  --green-200: #A8DFC2;
+  --green-100: #D4F0E3;
+  --green-50:  #EDF9F3;
+
+  --gray-900: #111827;
+  --gray-700: #374151;
+  --gray-600: #4B5563;
+  --gray-500: #6B7280;
+  --gray-400: #9CA3AF;
+  --gray-300: #D1D5DB;
+  --gray-200: #E5E7EB;
+  --gray-100: #F3F4F6;
+  --gray-50:  #F9FAFB;
+
+  --red-600:  #DC2626;
+  --red-50:   #FEF2F2;
+
+  --sidebar-width: 290px;
+  --transition: 0.22s ease;
+  --radius-sm: 6px;
+  --radius:    8px;
+  --radius-lg: 12px;
+}
+
+/* ── Reset ────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+
+/* ── App shell ────────────────────────────────────────────────────────── */
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SIDEBAR
+   ═══════════════════════════════════════════════════════════════════════ */
+.sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  background: #fff;
+  border-right: 1px solid var(--gray-200);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 100;
+  transition: width var(--transition), min-width var(--transition);
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-200) transparent;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 4px; }
+
+.sidebar.collapsed {
+  width: 0;
+  min-width: 0;
+  border-right: none;
+}
+
+/* Sidebar header */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--gray-200);
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+.sidebar-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-700);
+  white-space: nowrap;
+}
+
+/* ── Sidebar sections ─────────────────────────────────────────────────── */
+.sidebar-section {
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--transition);
+}
+.section-header:hover { background: var(--gray-50); }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+  white-space: nowrap;
+}
+
+/* Accordion chevron */
+.chevron {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--gray-400);
+  transition: transform var(--transition);
+}
+.chevron.open { transform: rotate(0deg); }
+.chevron:not(.open) { transform: rotate(-90deg); }
+
+.section-body { padding: 8px 12px 12px; }
+.section-body.hidden { display: none; }
+
+/* Sub-section (nested accordion, e.g. LULC other years) */
+.sub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+  margin-top: 4px;
+}
+.sub-header:hover { background: var(--gray-50); }
+.sub-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-400);
+}
+.sub-body { padding-left: 4px; }
+.sub-body.hidden { display: none; }
+
+/* ── Sidebar collapse tab ─────────────────────────────────────────────── */
+.sidebar-tab {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 200;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-left: none;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 10px 5px;
+  cursor: pointer;
+  display: none; /* shown by JS when collapsed */
+  align-items: center;
+  box-shadow: 2px 0 6px rgba(0,0,0,0.06);
+  color: var(--gray-500);
+  transition: color var(--transition);
+}
+.sidebar-tab:hover { color: var(--green-700); }
+.sidebar-tab svg { width: 14px; height: 14px; }
+
+/* ── Generic icon button ──────────────────────────────────────────────── */
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  color: var(--gray-500);
+  display: flex;
+  align-items: center;
+  transition: color var(--transition), background var(--transition);
+  flex-shrink: 0;
+}
+.icon-btn:hover { background: var(--gray-100); color: var(--gray-700); }
+.icon-btn svg { width: 14px; height: 14px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   BASEMAP TOGGLE (inside sidebar)
+   ═══════════════════════════════════════════════════════════════════════ */
+.basemap-toggle {
+  display: flex;
+  gap: 6px;
+}
+.basemap-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 8px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: var(--gray-50);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+.basemap-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+.basemap-btn:hover { border-color: var(--green-500); color: var(--green-700); }
+.basemap-btn.active {
+  background: var(--green-700);
+  border-color: var(--green-700);
+  color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DRAWING TOOLS
+   ═══════════════════════════════════════════════════════════════════════ */
+.draw-tools {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.draw-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: var(--gray-50);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.draw-btn svg { width: 16px; height: 16px; }
+.draw-btn:hover { border-color: var(--green-500); color: var(--green-700); background: var(--green-50); }
+.draw-btn.active { background: var(--green-700); border-color: var(--green-700); color: #fff; }
+.draw-btn.danger:hover { border-color: var(--red-600); color: var(--red-600); background: var(--red-50); }
+
+.hint {
+  margin-top: 8px;
+  font-size: 10.5px;
+  color: var(--gray-400);
+  line-height: 1.5;
+}
+.hint kbd {
+  display: inline-block;
+  padding: 1px 4px;
+  border: 1px solid var(--gray-300);
+  border-radius: 3px;
+  font-size: 10px;
+  background: var(--gray-50);
+  font-family: monospace;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   KML UPLOAD (styles used by kml.js)
+   ═══════════════════════════════════════════════════════════════════════ */
+.kml-upload-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border: 1.5px dashed var(--gray-300);
+  border-radius: var(--radius);
+  background: var(--gray-50);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.kml-upload-btn:hover {
+  border-color: var(--green-500);
+  color: var(--green-700);
+  background: var(--green-50);
+}
+.kml-upload-btn svg { width: 14px; height: 14px; }
+
+.kml-file-list { margin-top: 8px; display: flex; flex-direction: column; gap: 5px; }
+.kml-file-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--green-50);
+  font-size: 11.5px;
+  color: var(--green-800);
+}
+.kml-file-item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kml-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+  color: var(--gray-400);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: color var(--transition);
+}
+.kml-remove-btn:hover { color: var(--red-600); }
+.kml-remove-btn svg { width: 12px; height: 12px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   LAYER ROWS
+   ═══════════════════════════════════════════════════════════════════════ */
+.layer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 4px;
+  border-radius: var(--radius-sm);
+  transition: background var(--transition);
+  cursor: default;
+}
+.layer-row:hover { background: var(--gray-50); }
+
+.layer-name {
+  flex: 1;
+  font-size: 12.5px;
+  color: var(--gray-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Opacity slider row */
+.opacity-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 4px 6px 36px;
+}
+.opacity-label {
+  font-size: 10.5px;
+  color: var(--gray-400);
+  min-width: 40px;
+}
+.opacity-row input[type="range"] {
+  flex: 1;
+  height: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--gray-200);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.opacity-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--green-700);
+  cursor: pointer;
+}
+.opacity-row input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--green-700);
+  border: none;
+  cursor: pointer;
+}
+.opacity-val {
+  font-size: 10.5px;
+  color: var(--gray-500);
+  min-width: 30px;
+  text-align: right;
+}
+
+/* ── Toggle switch ────────────────────────────────────────────────────── */
+.toggle-switch {
+  position: relative;
+  width: 30px;
+  height: 17px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+.track {
+  position: absolute;
+  inset: 0;
+  border-radius: 9px;
+  background: var(--gray-200);
+  transition: background var(--transition);
+}
+.thumb {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18);
+  transition: left var(--transition);
+}
+.toggle-switch input:checked ~ .track { background: var(--green-700); }
+.toggle-switch input:checked ~ .thumb { left: 15px; }
+
+/* ── Group label inside a section ────────────────────────────────────── */
+.group-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gray-400);
+  padding: 8px 4px 2px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MAP
+   ═══════════════════════════════════════════════════════════════════════ */
+#map {
+  flex: 1;
+  z-index: 1;
+  min-width: 0;
+}
+
+/* ── Basemap overlay (floating top-right on map) ──────────────────────── */
+.basemap-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 400;
+  display: flex;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--gray-200);
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.basemap-overlay-btn {
+  padding: 6px 13px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: #fff;
+  color: var(--gray-600);
+  border: none;
+  transition: all var(--transition);
+}
+.basemap-overlay-btn:hover { background: var(--gray-100); }
+.basemap-overlay-btn.active { background: var(--green-700); color: #fff; }
+
+/* ── Leaflet zoom control overrides ──────────────────────────────────── */
+.leaflet-control-zoom {
+  border: 1px solid var(--gray-200) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
+  overflow: hidden;
+}
+.leaflet-control-zoom a {
+  color: var(--gray-700) !important;
+  font-weight: 400 !important;
+}
+.leaflet-control-zoom a:hover { background: var(--gray-50) !important; }
+
+/* Leaflet Draw toolbar — hide default (we use custom sidebar buttons) */
+.leaflet-draw-toolbar { display: none !important; }
