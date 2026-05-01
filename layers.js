@@ -1,19 +1,12 @@
 /**
  * layers.js
  * ─────────────────────────────────────────────────────────────────────────
- * Manages raster layers served by TiTiler from COGs on Cloudflare R2.
+ * Manages WMS layers served by GeoServer.
  *
- * Instead of GeoServer WMS, each layer is a standard Leaflet L.tileLayer
- * pointed at TiTiler's /cog/tiles/{z}/{x}/{y} endpoint.
- *
- * TiTiler tile URL format:
- *   {TITILER_URL}/cog/tiles/{z}/{x}/{y}
- *     ?url={COG_URL}
- *     &colormap_name={colormap}
- *     &rescale={min},{max}
+ * Each layer is a Leaflet L.tileLayer.wms pointed at GIS.CONFIG.GEOSERVER_URL.
  *
  * Exposes on GIS:
- *   GIS.tileLayers         — map of layer id → L.TileLayer
+ *   GIS.tileLayers         — map of layer id → L.TileLayer.WMS
  *   GIS.toggleLayer()      — add or remove a layer from the map
  *   GIS.setLayerOpacity()  — adjust opacity of an active layer
  *   GIS.initDefaultLayers()— called once on startup to enable defaults
@@ -25,50 +18,22 @@
   GIS.tileLayers = {};
 
   /**
-   * Builds the TiTiler XYZ tile URL for a given COG file.
-   *
-   * @param {string}   file      - filename in R2, e.g. "lulc_2025.tif"
-   * @param {string}   colormap  - TiTiler colormap name, e.g. "tab20"
-   * @param {number[]} rescale   - [min, max] value range
-   * @returns {string} Leaflet-compatible tile URL with {z}, {x}, {y}
-   */
-  function buildTileURL(file, colormap, rescale) {
-    const cfg    = GIS.CONFIG;
-    const cogURL = encodeURIComponent(`${cfg.R2_BASE_URL}/${file}`);
-
-    const colormapParam = typeof colormap === 'string'
-      ? `colormap_name=${colormap}`
-      : `colormap=${encodeURIComponent(JSON.stringify(colormap))}`;
-
-    const params = [
-      `url=${cogURL}`,
-      colormapParam,
-      `rescale=${rescale[0]},${rescale[1]}`
-    ].join('&');
-
-    return `${cfg.TITILER_URL}/cog/tiles/{z}/{x}/{y}?${params}`;
-  }
-
-  /**
-   * Returns a cached L.TileLayer for a layer config object,
+   * Returns a cached L.TileLayer.WMS for a layer config object,
    * creating it if it doesn't exist yet.
    *
-   * @param {{ id, file, colormap, rescale }} layerCfg
-   * @returns {L.TileLayer}
+   * @param {{ id, name }} layerCfg
+   * @returns {L.TileLayer.WMS}
    */
   function getOrCreate(layerCfg) {
     if (!GIS.tileLayers[layerCfg.id]) {
-      GIS.tileLayers[layerCfg.id] = L.tileLayer(
-        buildTileURL(layerCfg.file, layerCfg.colormap, layerCfg.rescale),
-        {
-          opacity:     0.8,
-          tileSize:    256,
-          // TiTiler tiles have no data outside the COG extent — keep transparent
-          // Even if the tile server returns a 404, Leaflet will just show nothing
-          errorTileUrl: '',
-          attribution: 'Savak GIS'
-        }
-      );
+      GIS.tileLayers[layerCfg.id] = L.tileLayer.wms(GIS.CONFIG.GEOSERVER_URL, {
+        layers:      layerCfg.name,
+        format:      'image/png',
+        transparent: true,
+        version:     '1.1.1',
+        opacity:     0.8,
+        attribution: 'Savak GIS'
+      });
     }
     return GIS.tileLayers[layerCfg.id];
   }
@@ -76,7 +41,7 @@
   /**
    * Finds a layer config object by id, searching all groups + LULC.
    * @param {string} id
-   * @returns {{ id, file, colormap, rescale }|null}
+   * @returns {{ id, name }|null}
    */
   function findLayerCfg(id) {
     const cfg = GIS.CONFIG;
@@ -91,14 +56,8 @@
     const lulc     = cfg.LULC;
     const allYears = [lulc.defaultYear, ...lulc.otherYears];
     for (const yr of allYears) {
-      const lulcId = `lulc-${yr}`;
-      if (id === lulcId) {
-        return {
-          id,
-          file:     lulc.filePattern.replace('{year}', yr),
-          colormap: lulc.colormap,
-          rescale:  lulc.rescale
-        };
+      if (id === `lulc-${yr}`) {
+        return { id, name: `${lulc.workspace}:${yr}` };
       }
     }
 
