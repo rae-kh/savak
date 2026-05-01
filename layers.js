@@ -176,14 +176,6 @@
    * Enables the LULC 2025 layer on first load.
    * Called from index.html after DOMContentLoaded.
    */
-  GIS.initDefaultLayers = function () {
-    const defaultId = `lulc-${GIS.CONFIG.LULC.defaultYear}`;
-
-    GIS.toggleLayer(defaultId, true);
-
-    // Sync the sidebar checkbox
-    const checkbox = document.getElementById(`toggle-${defaultId}`);
-    if (checkbox) checkbox.checked = true;
-  };
+  GIS.initDefaultLayers = function () {};
 
 })();
