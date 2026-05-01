@@ -1,3 +1,12 @@
+---
+title: Savak TiTiler
+emoji: 🗺️
+colorFrom: green
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
 # Savak GIS Dashboard
 
 Interactive map dashboard for GIS analysis, built with Leaflet.js.
