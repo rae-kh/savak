@@ -151,7 +151,7 @@
 
     if (enabled) {
       layer.addTo(GIS.map);
-      zoomToLayerExtent(cfg.name);
+      if (cfg.zoomToExtent !== false) zoomToLayerExtent(cfg.name);
     } else {
       GIS.map.removeLayer(layer);
     }

@@ -59,7 +59,7 @@ GIS.CONFIG = {
         {
           id:     "dem",
           name:   "silvagrid:DEM",
-          label:  "DEM",
+          label:  "Elevation (DEM)",
           legend: [
             { color: "#2c7bb6", label: "5.8 m" },
             { color: "#00a6ca", label: "8 m"   },
@@ -96,9 +96,10 @@ GIS.CONFIG = {
           ]
         },
         {
-          id:     "waterlogging",
-          name:   "silvagrid:waterlogging",
-          label:  "Waterlogging (Sindh)",
+          id:           "waterlogging",
+          name:         "silvagrid:waterlogging",
+          label:        "Waterlogging (Sindh)",
+          zoomToExtent: false,
           legend: [
             { color: "#ffffff", label: "Never"             },
             { color: "#b3d9ff", label: "Rare (1–5 yrs)"   },
