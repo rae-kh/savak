@@ -57,18 +57,54 @@
     const allYears = [lulc.defaultYear, ...lulc.otherYears];
     for (const yr of allYears) {
       if (id === `lulc-${yr}`) {
-        return { id, name: `${lulc.workspace}:${yr}` };
+        return {
+          id,
+          name:   `${lulc.workspace}:${yr}`,
+          label:  yr === lulc.defaultYear ? lulc.defaultLabel : `Land Use Land Cover (${yr})`,
+          legend: lulc.legend
+        };
       }
     }
 
     return null;
   }
 
+  // ── Map legend panel ───────────────────────────────────────────────────
+
+  function updateMapLegend(id, enabled, layerCfg) {
+    const panel = document.getElementById('map-legend');
+    if (!panel) return;
+
+    const sectionId = `legend-section-${id}`;
+
+    if (enabled && layerCfg && layerCfg.legend) {
+      if (!document.getElementById(sectionId)) {
+        const section = document.createElement('div');
+        section.className = 'map-legend-section';
+        section.id = sectionId;
+        section.innerHTML =
+          `<div class="map-legend-title">${layerCfg.label}</div>` +
+          layerCfg.legend.map(e =>
+            `<div class="map-legend-entry">` +
+            `<span class="map-legend-swatch" style="background:${e.color}"></span>` +
+            `<span class="map-legend-label">${e.label}</span>` +
+            `</div>`
+          ).join('');
+        panel.appendChild(section);
+      }
+    } else {
+      const section = document.getElementById(sectionId);
+      if (section) section.remove();
+    }
+
+    panel.style.display = panel.children.length ? 'block' : 'none';
+  }
+
   /**
    * toggleLayer(id, enabled)
    * Adds or removes the layer with the given config id from the map.
    *
-   * @param {string}  id      - layer config id (e.g. "ndvi", "lulc-2025")
+   * @param {string}  id      - layer config id (e.g. "dem", "lulc-2025")
    * @param {boolean} enabled
    */
   GIS.toggleLayer = function (id, enabled) {
@@ -85,6 +121,8 @@
     } else {
       GIS.map.removeLayer(layer);
     }
+
+    updateMapLegend(id, enabled, cfg);
   };
 
   /**

@@ -57,15 +57,6 @@
    * @returns {string} HTML string
    */
   function buildLayerRow(layer) {
-    const legendHTML = layer.legend ? `
-      <div class="layer-legend">
-        ${layer.legend.map(e => `
-          <div class="legend-entry">
-            <span class="legend-swatch" style="background:${e.color}"></span>
-            <span class="legend-label">${e.label}</span>
-          </div>`).join('')}
-      </div>` : '';
-
     return `
       <div class="layer-row">
         <label class="toggle-switch">
@@ -90,7 +81,6 @@
         />
         <span class="opacity-val" id="opv-${layer.id}">80%</span>
       </div>
-      ${legendHTML}
     `;
   }
 

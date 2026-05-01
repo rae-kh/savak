@@ -57,9 +57,19 @@ GIS.CONFIG = {
       expanded: false,
       layers: [
         {
-          id:    "dem",
-          name:  "silvagrid:DEM",
-          label: "DEM"
+          id:     "dem",
+          name:   "silvagrid:DEM",
+          label:  "DEM",
+          legend: [
+            { color: "#2c7bb6", label: "5.8 m" },
+            { color: "#00a6ca", label: "8 m"   },
+            { color: "#00ccbc", label: "11 m"  },
+            { color: "#90eb9d", label: "15 m"  },
+            { color: "#ffff8c", label: "18 m"  },
+            { color: "#f9d057", label: "21 m"  },
+            { color: "#f29e2e", label: "23 m"  },
+            { color: "#d7191c", label: "25 m"  }
+          ]
         },
         {
           id:     "drought",
@@ -104,11 +114,6 @@ GIS.CONFIG = {
       label:    "Vegetation",
       expanded: false,
       layers: [
-        {
-          id:    "ndvi",
-          name:  "silvagrid:ndvi",
-          label: "NDVI"
-        },
         {
           id:     "tree",
           name:   "silvagrid:Tree_Density",
