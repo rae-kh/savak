@@ -69,6 +69,39 @@
     return null;
   }
 
+  // ── Layer extent (zoom-to) ─────────────────────────────────────────────
+
+  let _capsCache = null;
+
+  async function zoomToLayerExtent(layerName) {
+    try {
+      if (!_capsCache) {
+        const url = `${GIS.CONFIG.GEOSERVER_URL}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetCapabilities`;
+        const resp = await fetch(url);
+        const text = await resp.text();
+        _capsCache = new DOMParser().parseFromString(text, 'text/xml');
+      }
+
+      // Find the <Layer> whose <Name> matches layerName
+      const nameEls = Array.from(_capsCache.querySelectorAll('Layer > Name'));
+      for (const nameEl of nameEls) {
+        if (nameEl.textContent.trim() === layerName) {
+          const bbox = nameEl.parentElement.querySelector('LatLonBoundingBox');
+          if (bbox) {
+            const w = parseFloat(bbox.getAttribute('minx'));
+            const s = parseFloat(bbox.getAttribute('miny'));
+            const e = parseFloat(bbox.getAttribute('maxx'));
+            const n = parseFloat(bbox.getAttribute('maxy'));
+            GIS.map.fitBounds([[s, w], [n, e]], { padding: [30, 30] });
+          }
+          return;
+        }
+      }
+    } catch (err) {
+      // CORS or network error — zoom silently skipped
+    }
+  }
+
   // ── Map legend panel ───────────────────────────────────────────────────
 
   function updateMapLegend(id, enabled, layerCfg) {
@@ -118,6 +151,7 @@
 
     if (enabled) {
       layer.addTo(GIS.map);
+      zoomToLayerExtent(cfg.name);
     } else {
       GIS.map.removeLayer(layer);
     }
