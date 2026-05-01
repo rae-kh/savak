@@ -35,7 +35,7 @@ GIS.CONFIG = {
   // e.g. https://pub-xxxx.r2.dev/lulc_2025.tif
   //
   // Setup steps → see README.md → "Step 1: Cloudflare R2"
-  R2_BASE_URL: "https://YOUR-BUCKET.r2.dev",
+  R2_BASE_URL: "https://github.com/rae-kh/savak/releases/download/savak",
 
   // ── Default map view ─────────────────────────────────────────────────
   DEFAULT_CENTER: [25.52, 69.00],
