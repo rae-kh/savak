@@ -14,7 +14,7 @@ Then open: http://localhost:8000/docs  (auto-generated API docs)
 ───────────────────────────────────────────────────────────────────────────
 """
 
-from titiler.core.application import TilerFactory
+from titiler.core.factory import TilerFactory
 from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
