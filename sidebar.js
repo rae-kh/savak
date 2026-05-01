@@ -107,11 +107,11 @@
       <div class="sidebar-section">
         <div class="section-header" data-target="lulc-body">
           <span class="section-label">Land Use / Land Cover</span>
-          <svg class="chevron open" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+          <svg class="chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M2 4l4 4 4-4"/>
           </svg>
         </div>
-        <div class="section-body" id="lulc-body">
+        <div class="section-body hidden" id="lulc-body">
 
           ${buildLayerRow(defaultLayer)}
 
