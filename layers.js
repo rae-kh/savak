@@ -59,7 +59,7 @@
       if (id === `lulc-${yr}`) {
         return {
           id,
-          name:   `${lulc.workspace}:${yr}`,
+          name:   `${lulc.workspace}:lulc_${yr}`,
           label:  yr === lulc.defaultYear ? lulc.defaultLabel : `Land Use Land Cover (${yr})`,
           legend: lulc.legend
         };
