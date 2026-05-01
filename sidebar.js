@@ -57,7 +57,15 @@
    * @returns {string} HTML string
    */
   function buildLayerRow(layer) {
-    // TiTiler: layers are identified by their config id, not a WMS layer name
+    const legendHTML = layer.legend ? `
+      <div class="layer-legend">
+        ${layer.legend.map(e => `
+          <div class="legend-entry">
+            <span class="legend-swatch" style="background:${e.color}"></span>
+            <span class="legend-label">${e.label}</span>
+          </div>`).join('')}
+      </div>` : '';
+
     return `
       <div class="layer-row">
         <label class="toggle-switch">
@@ -82,6 +90,7 @@
         />
         <span class="opacity-val" id="opv-${layer.id}">80%</span>
       </div>
+      ${legendHTML}
     `;
   }
 
@@ -92,14 +101,16 @@
 
     // Default year layer (LULC 2025)
     const defaultLayer = {
-      id:    `lulc-${lulcCfg.defaultYear}`,
-      label: lulcCfg.defaultLabel
+      id:     `lulc-${lulcCfg.defaultYear}`,
+      label:  lulcCfg.defaultLabel,
+      legend: lulcCfg.legend
     };
 
-    // Other year layers
+    // Other year layers share the same legend
     const otherRows = lulcCfg.otherYears.map(yr => buildLayerRow({
-      id:    `lulc-${yr}`,
-      label: `Land Use Land Cover (${yr})`
+      id:     `lulc-${yr}`,
+      label:  `Land Use Land Cover (${yr})`,
+      legend: lulcCfg.legend
     })).join('');
 
     return `

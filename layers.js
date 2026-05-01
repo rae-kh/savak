@@ -35,9 +35,14 @@
   function buildTileURL(file, colormap, rescale) {
     const cfg    = GIS.CONFIG;
     const cogURL = encodeURIComponent(`${cfg.R2_BASE_URL}/${file}`);
+
+    const colormapParam = typeof colormap === 'string'
+      ? `colormap_name=${colormap}`
+      : `colormap=${encodeURIComponent(JSON.stringify(colormap))}`;
+
     const params = [
       `url=${cogURL}`,
-      `colormap_name=${colormap}`,
+      colormapParam,
       `rescale=${rescale[0]},${rescale[1]}`
     ].join('&');
 

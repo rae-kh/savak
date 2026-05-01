@@ -24,7 +24,7 @@ GIS.CONFIG = {
   // For local development, run TiTiler locally and use http://localhost:8000
   //
   // Deploy steps → see README.md → "Step 3: Deploy TiTiler"
-  TITILER_URL: "https://YOUR-APP-NAME.onrender.com",
+  TITILER_URL: "https://rae-k-savak.hf.space",
 
   // ── Cloudflare R2 public bucket URL ──────────────────────────────────
   // After creating an R2 bucket and enabling public access, your base URL
@@ -83,22 +83,43 @@ GIS.CONFIG = {
           id:       "drought",
           file:     "drought.tif",
           label:    "Drought",
-          colormap: "YlOrRd",
-          rescale:  [0, 1]
+          rescale:  [0, 4],
+          colormap: { "0": [26,150,65,255], "1": [166,217,106,255], "2": [255,255,191,255], "3": [253,174,97,255], "4": [215,25,28,255] },
+          legend:   [
+            { color: "#1a9641", label: "Very Low"  },
+            { color: "#a6d96a", label: "Low"       },
+            { color: "#ffffbf", label: "Moderate"  },
+            { color: "#fdae61", label: "High"      },
+            { color: "#d7191c", label: "Very High" }
+          ]
         },
         {
           id:       "flood",
           file:     "floodrisk.tif",
           label:    "Flood Risk",
-          colormap: "Blues",
-          rescale:  [0, 1]
+          rescale:  [0, 4],
+          colormap: { "0": [33,102,172,255], "1": [116,173,209,255], "2": [255,255,191,255], "3": [244,109,67,255], "4": [165,0,38,255] },
+          legend:   [
+            { color: "#2166ac", label: "Very Low"  },
+            { color: "#74add1", label: "Low"       },
+            { color: "#ffffbf", label: "Moderate"  },
+            { color: "#f46d43", label: "High"      },
+            { color: "#a50026", label: "Very High" }
+          ]
         },
         {
           id:       "waterlogging",
           file:     "waterlogging.tif",
           label:    "Waterlogging (Sindh)",
-          colormap: "PuBu",
-          rescale:  [0, 1]
+          rescale:  [0, 37],
+          colormap: [ [[0,1],[255,255,255,255]], [[1,6],[179,217,255,255]], [[6,16],[77,166,255,255]], [[16,26],[0,102,204,255]], [[26,38],[0,51,128,255]] ],
+          legend:   [
+            { color: "#ffffff", label: "Never"              },
+            { color: "#b3d9ff", label: "Rare (1–5 yrs)"    },
+            { color: "#4da6ff", label: "Occasional (6–15)"  },
+            { color: "#0066cc", label: "Frequent (16–25)"   },
+            { color: "#003380", label: "Chronic (26+)"      }
+          ]
         }
       ]
     },
@@ -118,29 +139,52 @@ GIS.CONFIG = {
           id:       "tree",
           file:     "tree_density.tif",
           label:    "Tree Density",
-          colormap: "Greens",
-          rescale:  [0, 100]
+          rescale:  [0, 3],
+          colormap: { "0": [240,255,240,255], "1": [178,226,178,255], "2": [102,194,102,255], "3": [0,100,0,255] },
+          legend:   [
+            { color: "#f0fff0", label: "No Trees" },
+            { color: "#b2e2b2", label: "Sparse"   },
+            { color: "#66c266", label: "Moderate" },
+            { color: "#006400", label: "Dense"    }
+          ]
         },
         {
           id:       "plantation",
           file:     "plantation_history.tif",
           label:    "Plantation History",
-          colormap: "YlGn",
-          rescale:  [0, 1]
+          rescale:  [2015, 2026],
+          colormap: { "2016": [230,57,70,230], "2017": [255,107,53,230], "2018": [255,190,11,230], "2019": [138,201,38,230], "2020": [0,196,154,230], "2021": [0,180,216,230], "2022": [58,134,255,230], "2023": [123,47,190,230], "2024": [255,0,110,230], "2025": [11,102,35,230] },
+          legend:   [
+            { color: "#E63946", label: "2016" },
+            { color: "#FF6B35", label: "2017" },
+            { color: "#FFBE0B", label: "2018" },
+            { color: "#8AC926", label: "2019" },
+            { color: "#00C49A", label: "2020" },
+            { color: "#00B4D8", label: "2021" },
+            { color: "#3A86FF", label: "2022" },
+            { color: "#7B2FBE", label: "2023" },
+            { color: "#FF006E", label: "2024" },
+            { color: "#0b6623", label: "2025" }
+          ]
         }
       ]
     }
   ],
 
   // ── Land Use / Land Cover (LULC) ─────────────────────────────────────
-  // 2025 is shown by default. Other years are in a nested collapsed section.
-  // "tab20" works well for categorical LULC with many classes.
-  // Adjust rescale to match the number of classes in your LULC data.
   LULC: {
     defaultYear:  2025,
     defaultLabel: "Land Use Land Cover (2025)",
-    colormap:     "tab20",
-    rescale:      [0, 20],
+    rescale:      [0, 5],
+    colormap:     { "0": [43,131,186,255], "1": [194,178,128,255], "2": [215,48,39,255], "3": [166,217,106,255], "4": [26,152,80,255], "5": [253,174,97,255] },
+    legend:       [
+      { color: "#2b83ba", label: "Water"    },
+      { color: "#c2b280", label: "Bareland" },
+      { color: "#d73027", label: "Built-up" },
+      { color: "#a6d96a", label: "Grassland"},
+      { color: "#1a9850", label: "Trees"    },
+      { color: "#fdae61", label: "Cropland" }
+    ],
     otherYears:   [2018, 2019, 2020, 2021, 2022, 2023, 2024],
     filePattern:  "lulc_{year}.tif"
   }
